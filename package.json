@@ -1,5 +1,5 @@
 {
-  "name": "react-native-echarts",
+  "name": "@kafudev/react-native-echarts",
   "version": "0.1.0",
   "description": "Echarts图表，react-native-echarts",
   "main": "lib/commonjs/index",
