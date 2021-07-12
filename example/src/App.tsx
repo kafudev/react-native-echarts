@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { StyleSheet, View, Text } from 'react-native';
-import Echarts from 'react-native-echarts';
+import Echarts from '@kafudev/react-native-echarts';
 
 export default function App() {
   const [result, setResult] = React.useState<number | undefined>();

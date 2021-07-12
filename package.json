@@ -153,5 +153,9 @@
         }
       ]
     ]
+  },
+  "dependencies": {
+    "echarts": "^5.1.2",
+    "react-native-webview": "^11.6.5"
   }
 }
