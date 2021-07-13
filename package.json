@@ -131,7 +131,8 @@
   "eslintIgnore": [
     "node_modules/",
     "lib/",
-    "example"
+    "example",
+    "src/echarts/echarts.min.js"
   ],
   "prettier": {
     "quoteProps": "consistent",
