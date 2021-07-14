@@ -74,12 +74,13 @@ export default function Echarts(props: EchartsProps) {
   let chartRef = useRef(null);
   useEffect(() => {
     if (props.option) {
-      setOption(props.option);
       // console.log(TAG + 'useEffect option', props.option);
+      setOption(props.option);
       try {
-        let ostr = provider.convertToPostMessageString(props.option);
+        let ostr = provider.toString(props.option);
+        // @ts-ignore
         // ostr = JSON.stringify(props.option);
-        console.log(TAG + 'useEffect postMessage', ostr);
+        console.log(TAG + 'useEffect postMessage');
         // @ts-ignore
         chartRef.current.postMessage(ostr);
       } catch (error) {
@@ -143,7 +144,7 @@ export default function Echarts(props: EchartsProps) {
         chart = echarts.init(document.getElementById('main'), ${JSON.stringify(
           theme || {}
         )}, ${JSON.stringify(opts || {})});
-        chart.setOption(${JSON.stringify(option || {})});
+        chart.setOption(parseString(${provider.toString(option)}));
         // 监听echart事件和行为
         let mouseEventArr = ['click','dblclick','mousedown','mousemove','mouseup','mouseover','mouseout','globalout','contextmenu', 'highlight', 'downplay', 'selectchanged', 'dataZoom']
         mouseEventArr.map(ee=>{
@@ -187,38 +188,56 @@ export default function Echarts(props: EchartsProps) {
       function handleMessage (e) {
         // 消息解析成json
         let xx = {}
-        let option = typeof e.data === 'string'?JSON.parse(e.data, function (key, value) {
-          if (value && typeof value === "string" && value.substr(0,8) === "function") {
-              console.log(TAG+'function '+key+value)
-              let startBody = value.indexOf('{') + 1;
-              let endBody = value.lastIndexOf('}');
-              let startArgs = value.indexOf('(') + 1;
-              let endArgs = value.indexOf(')');
-              // alert(value.substring(startBody, endBody))
-              // console.log(TAG+'function ' + value.substring(startArgs, endArgs) + value.substring(startBody, endBody))
-              let ff = null
-              if(!value.substring(startArgs, endArgs)){
-                ff = new Function(value.substring(startBody, endBody));
-              } else {
-                ff = new Function(value.substring(startArgs, endArgs), value.substring(startBody, endBody));
-              }
-              xx = ff
-              console.log(TAG+'Function '+ff.toString())
-              return ff;
-          }
-          return value;
-        }):e.data;
-        // option = typeof e.data === 'string'?JSON.parse(e.data):e.data;
-        let optionStr = JSON.stringify(option, (_key, val) => {
-          if (typeof val === 'function') {
-            return val.toString();
-          }
-          return val;
-        });
+        let data = e.data
+        let option = parseString(data)
+        chart && chart.setOption(option);
+        // let optionStr = JSON.stringify(option, (_key, val) => {
+        //   if (typeof val === 'function') {
+        //     return val.toString();
+        //   }
+        //   return val;
+        // });
         // console.log(TAG+'handelMessage option ' + optionStr)
         // option && option.aria && option.aria.cccccc()
-        chart && chart.setOption(option);
-        console.log(TAG+'handelMessage setOption ' + optionStr)
+        // console.log(TAG+'handelMessage setOption ' + optionStr)
+      }
+
+      // 解析string成对象
+      function parseString (str) {
+        let cc =
+          typeof str === 'string'
+            ? JSON.parse(str, function (key, value) {
+                // 去掉前后空格
+                // if (value) value = value.replace( /^\s/, '');
+                if (
+                  value &&
+                  typeof value === 'string' &&
+                  value.substr(0, 8) === 'function'
+                ) {
+                  console.log(TAG + 'function ' + key + ' ' + value);
+                  let startBody = value.indexOf('{') + 1;
+                  let endBody = value.lastIndexOf('}');
+                  let startArgs = value.indexOf('(') + 1;
+                  let endArgs = value.indexOf(')');
+                  // console.log(TAG+'function ' + value.substring(startArgs, endArgs) + value.substring(startBody, endBody))
+                  let ff = null;
+                  if (!value.substring(startArgs, endArgs)) {
+                    // eslint-disable-next-line no-new-func
+                    ff = new Function('return ', value.substring(startBody, endBody));
+                  } else {
+                    // eslint-disable-next-line no-new-func
+                    ff = new Function(
+                      value.substring(startArgs, endArgs),
+                      value.substring(startBody, endBody)
+                    );
+                  }
+                  // console.log(TAG+'Function '+ff.toString())
+                  return ff;
+                }
+                return value;
+              })
+            : str;
+        return cc;
       }
 
       // 给webview发送消息

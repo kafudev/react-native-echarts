@@ -52,13 +52,13 @@ export default option = {
             fontSize: 12,
             color: '#333'
         },
-        position: function (pos, params, el, elRect, size) {
+        position: `function (pos, params, el, elRect, size) {
             var obj = {
                 top: 60
             };
             obj[['left', 'right'][+(pos[0] < size.viewSize[0] / 2)]] = 5;
             return obj;
-        }
+        }`
     },
     axisPointer: {
         link: [{
@@ -89,11 +89,9 @@ export default option = {
         boundaryGap : false,
         axisLine: { lineStyle: { color: '#f60' } },
         axisLabel: {
-            formatter: function (value) {
-                console.log('formatter', value);
-                // return echarts.format.formatTime('MM-dd', value);
-                return 'cccc'
-            }
+            formatter: `function (value) {
+                return echarts.format.formatTime('MM-dd', value);
+            }`
         },
         min: 'dataMin',
         max: 'dataMax',

@@ -81,7 +81,7 @@ export default function App() {
         option={option}
         theme={theme}
         opts={opts}
-        width={width - 20}
+        width={width}
         height={height / 2}
         style={styles.echarts}
       />
@@ -97,6 +97,7 @@ export default function App() {
           title="设置option"
           onPress={() => {
             setOption({
+              ..._option,
               title: {
                 text: 'ECharts 示例' + count,
               },
@@ -113,9 +114,6 @@ export default function App() {
                 decal: {
                   show: true,
                 },
-                cccccc: function () {
-                  console.log('xxxx')
-                }
               },
             });
             setCount(count + 1);
