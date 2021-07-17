@@ -89,7 +89,7 @@ export default option = {
         boundaryGap : false,
         axisLine: { lineStyle: { color: '#f60' } },
         axisLabel: {
-            formatter: `function (value) {
+            formatter:  `function(value) {
                 return echarts.format.formatTime('MM-dd', value);
             }`
         },

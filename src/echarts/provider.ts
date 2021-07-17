@@ -7,10 +7,10 @@ export function loadEchartsFramework() {
   try {
     const data = echartStr + '';
     // 等待操作结果返回，然后打印结果
-    console.log(TAG + 'echartjs的lib文件');
+    console.log(TAG + '读取echartjs的lib文件');
     return data;
   } catch (e) {
-    console.log(TAG + '读取echarts文件发生错误', e);
+    console.log(TAG + '读取echartjs的lib文件发生错误', e);
     return '';
   }
 }
@@ -48,14 +48,21 @@ export const parseString = (str: string | object) => {
   let cc =
     typeof str === 'string'
       ? JSON.parse(str, function (key, value) {
-          // 去掉前后空格
-          // if (value) value = value.replace(/^\s/, '');
+          // 去掉function前后空格
+          if (
+            value &&
+            typeof value === 'string' &&
+            value.indexOf('function') >= 0
+          ) {
+            value = value.replace(/^\s/, '');
+          }
           console.log('value ', value);
           if (
             value &&
             typeof value === 'string' &&
             value.substr(0, 8) === 'function'
           ) {
+            value = value.replace(/\n/g, '');
             console.log(TAG + 'function ' + key + ' ' + value);
             let startBody = value.indexOf('{') + 1;
             let endBody = value.lastIndexOf('}');

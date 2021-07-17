@@ -6,8 +6,8 @@ import {
   Text,
   Button,
   Dimensions,
-  TouchableOpacityBase,
-  TouchableOpacity,
+  ScrollView,
+  Image,
 } from 'react-native';
 import Echarts from '@kafudev/react-native-echarts';
 const { height, width } = Dimensions.get('window');
@@ -15,9 +15,11 @@ export default function App() {
   let [count, setCount] = React.useState(0);
   let [option, setOption] = React.useState(null);
   let [theme, setTheme] = React.useState(null);
-  let [opts, setOpts] = React.useState({
-    renderer: 'svg'
-  });
+  let [opts, setOpts] = React.useState({});
+  let [notMerge] = React.useState(false);
+  let [lazyUpdate] = React.useState(false);
+  let [imageSource, setImageSource] = React.useState({});
+  let chartRef = React.useRef(null);
   const [result, setResult] = React.useState<number | undefined>(0);
   let _option: object = {
     title: {
@@ -66,24 +68,31 @@ export default function App() {
     ],
   };
 
-  _option = require('./options').default
+  _option = require('./options').default;
 
   React.useEffect(() => {
     setOption(_option);
   }, []);
 
+
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <Text>Result: {result + '' + count}</Text>
       <Text>Result: {result + '' + count}</Text>
       <Text>Result: {result + '' + count}</Text>
       <Echarts
+        ref={chartRef}
         option={option}
         theme={theme}
         opts={opts}
+        notMerge={notMerge}
+        lazyUpdate={lazyUpdate}
         width={width}
         height={height / 2}
         style={styles.echarts}
+        onEvent={(event) => {
+          // console.log('App Echarts onEvent', event);
+        }}
       />
       <View
         style={{
@@ -134,15 +143,153 @@ export default function App() {
           }}
         ></Button>
       </View>
-    </View>
+      <View
+        style={{
+          width: '80%',
+          marginTop: 20,
+          justifyContent: 'space-evenly',
+        }}
+      >
+        <Button
+          title="ref设置option"
+          onPress={() => {
+            chartRef.current.setOption({
+              ..._option,
+              title: {
+                text: 'ECharts 示例' + count,
+              },
+            });
+            setCount(count + 1);
+          }}
+        ></Button>
+        <Button
+          title="ref获取option"
+          onPress={() => {
+            chartRef.current.getOption().then((res) => {
+              console.log('chartRef.current.getOption() ', res);
+            });
+          }}
+        ></Button>
+        <Button
+          title="ref获取height"
+          onPress={() => {
+            chartRef.current.getHeight().then((res) => {
+              console.log('chartRef.current.getHeight() ', res);
+            });
+          }}
+        ></Button>
+        <Button
+          title="ref获取width"
+          onPress={() => {
+            chartRef.current.getWidth().then((res) => {
+              console.log('chartRef.current.getWidth() ', res);
+            });
+          }}
+        ></Button>
+        <Button
+          title="ref获取dom"
+          onPress={() => {
+            chartRef.current.getDom().then((res) => {
+              console.log('chartRef.current.getDom() ', res);
+            });
+          }}
+        ></Button>
+        <Button
+          title="ref-dispatchAction"
+          onPress={() => {
+            chartRef.current
+              .dispatchAction({
+                type: 'dataZoom',
+                start: 20,
+                end: 30,
+              })
+              .then((res) => {
+                console.log('chartRef.current.dispatchAction() ', res);
+              });
+          }}
+        ></Button>
+        <Button
+          title="ref-on"
+          onPress={() => {
+            chartRef.current
+              .on('click', 'series', function (event) {
+                alert('xx' + event.type + event.name);
+              })
+              .then((res) => {
+                console.log('chartRef.current.on() ', res);
+              });
+          }}
+        ></Button>
+        <Button
+          title="ref-off"
+          onPress={() => {
+            chartRef.current.off('click').then((res) => {
+              console.log('chartRef.current.off() ', res);
+            });
+          }}
+        ></Button>
+        <Button
+          title="ref-resize"
+          onPress={() => {
+            chartRef.current.resize().then((res) => {
+              console.log('chartRef.current.resize() ', res);
+            });
+          }}
+        ></Button>
+        <Button
+          title="ref-clear"
+          onPress={() => {
+            chartRef.current.clear().then((res) => {
+              console.log('chartRef.current.clear() ', res);
+            });
+          }}
+        ></Button>
+        <Button
+          title="ref-showLoading"
+          onPress={() => {
+            chartRef.current.showLoading().then((res) => {
+              console.log('chartRef.current.showLoading() ', res);
+            });
+          }}
+        ></Button>
+        <Button
+          title="ref-hideLoading"
+          onPress={() => {
+            chartRef.current.hideLoading().then((res) => {
+              console.log('chartRef.current.hideLoading() ', res);
+            });
+          }}
+        ></Button>
+        <Button
+          title="ref-getDataURL"
+          onPress={() => {
+            chartRef.current.getDataURL().then((res) => {
+              setImageSource({ uri: res.data });
+              console.log('chartRef.current.getDataURL() ');
+            });
+          }}
+        ></Button>
+        <Button
+          title="ref-getConnectedDataURL"
+          onPress={() => {
+            chartRef.current.getConnectedDataURL().then((res) => {
+              setImageSource({ uri: res.data });
+              console.log('chartRef.current.getConnectedDataURL() ');
+            });
+          }}
+        ></Button>
+
+        <Image source={imageSource} style={{ width: 200, height: 200 }}></Image>
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    // alignItems: 'center',
+    // justifyContent: 'center',
   },
   box: {
     width: 60,
